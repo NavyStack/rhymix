@@ -1,8 +1,8 @@
 ARG NGINX_VERSION=1.25.3
-ARG PHP_VERSION=8.2-fpm-bookworm
+ARG PHP_VERSION=8.1-fpm-bookworm
 
 FROM navystack/ngx_mod:${NGINX_VERSION} as nginx-moduler-rhymix-downloader
-RUN apt-get update && apt-get install git wget -y
+RUN apt-get update && apt-get install git -y
 RUN git clone --depth=1 https://github.com/rhymix/rhymix.git /usr/src/rhymix
 RUN mkdir -p /usr/src/rhymix/files
 RUN chown -R www-data:www-data /usr/src/rhymix

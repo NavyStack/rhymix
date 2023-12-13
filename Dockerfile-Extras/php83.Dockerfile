@@ -1,8 +1,8 @@
 ARG NGINX_VERSION=1.25.3
-ARG PHP_VERSION=8.2-fpm-bookworm
+ARG PHP_VERSION=8.3-fpm-bookworm
 
 FROM navystack/ngx_mod:${NGINX_VERSION} as nginx-moduler-rhymix-downloader
-RUN apt-get update && apt-get install git wget -y
+RUN apt-get update && apt-get install git -y
 RUN git clone --depth=1 https://github.com/rhymix/rhymix.git /usr/src/rhymix
 RUN mkdir -p /usr/src/rhymix/files
 RUN chown -R www-data:www-data /usr/src/rhymix
@@ -16,7 +16,7 @@ ENV PKG_RELEASE     1~bookworm
 RUN curl -sSLf -o /usr/local/bin/install-php-extensions \
         https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
     chmod +x /usr/local/bin/install-php-extensions; \
-        install-php-extensions gd imagick apcu opcache redis pdo_mysql intl exif zip; \
+        install-php-extensions gd imagick apcu opcache redis pdo_mysql mysqli intl exif zip; \
     set -eux; \
     # set recommended PHP.ini settings
     # see https://secure.php.net/manual/en/opcache.installation.php

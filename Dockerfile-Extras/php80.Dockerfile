@@ -1,17 +1,17 @@
-ARG NGINX_VERSION=1.25.3
-ARG PHP_VERSION=8.2-fpm-bookworm
+ARG NGINX_VERSION=1.24.0
+ARG PHP_VERSION=8.0-fpm-bullseye
 
 FROM navystack/ngx_mod:${NGINX_VERSION} as nginx-moduler-rhymix-downloader
-RUN apt-get update && apt-get install git wget -y
+RUN apt-get update && apt-get install git -y
 RUN git clone --depth=1 https://github.com/rhymix/rhymix.git /usr/src/rhymix
 RUN mkdir -p /usr/src/rhymix/files
 RUN chown -R www-data:www-data /usr/src/rhymix
 RUN chmod -R 1777 /usr/src/rhymix/files
 
 FROM php:${PHP_VERSION} as final
-ENV NGINX_VERSION   1.25.3
-ENV NJS_VERSION     0.8.2
-ENV PKG_RELEASE     1~bookworm
+ENV NGINX_VERSION   1.24.0
+ENV NJS_VERSION     0.8.0
+ENV PKG_RELEASE     1~bullseye
 
 RUN curl -sSLf -o /usr/local/bin/install-php-extensions \
         https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
@@ -40,7 +40,7 @@ RUN curl -sSLf -o /usr/local/bin/install-php-extensions \
 	} > /usr/local/etc/php/conf.d/error-logging.ini
 
 # Nginx Dockerfile source
-# https://github.com/nginxinc/docker-nginx/blob/4bf0763f4977fff7e9648add59e0540088f3ca9f/mainline/debian/Dockerfile
+# https://github.com/nginxinc/docker-nginx/blob/4bf0763f4977fff7e9648add59e0540088f3ca9f/stable/debian/Dockerfile
 
 RUN set -x \
 # create nginx user/group first, to be consistent throughout docker variants
@@ -75,13 +75,13 @@ RUN set -x \
     && case "$dpkgArch" in \
         amd64|arm64) \
 # arches officialy built by upstream
-            echo "deb [signed-by=$NGINX_GPGKEY_PATH] https://nginx.org/packages/mainline/debian/ bookworm nginx" >> /etc/apt/sources.list.d/nginx.list \
+            echo "deb [signed-by=$NGINX_GPGKEY_PATH] https://nginx.org/packages/debian/ bullseye nginx" >> /etc/apt/sources.list.d/nginx.list \
             && apt-get update \
             ;; \
         *) \
 # we're on an architecture upstream doesn't officially build for
 # let's build binaries from the published source packages
-            echo "deb-src [signed-by=$NGINX_GPGKEY_PATH] https://nginx.org/packages/mainline/debian/ bookworm nginx" >> /etc/apt/sources.list.d/nginx.list \
+            echo "deb-src [signed-by=$NGINX_GPGKEY_PATH] https://nginx.org/packages/debian/ bullseye nginx" >> /etc/apt/sources.list.d/nginx.list \
             \
 # new directory for storing sources and .deb files
             && tempDir="$(mktemp -d)" \

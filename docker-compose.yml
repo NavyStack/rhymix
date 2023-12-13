@@ -1,0 +1,165 @@
+version: "3.9"
+services:
+  rhymix-db:
+    image: mysql:8.0
+    restart: unless-stopped
+
+    logging:
+      options:
+        max-size: "10m"
+
+    environment:
+      MYSQL_USER: rhymix ## 수정
+      MYSQL_PASSWORD: powerpassword ## 수정
+      MYSQL_DATABASE: rhymix ## 수정
+      MYSQL_ROOT_PASSWORD: powerpassword ## 수정
+
+    volumes:
+      - rhymix-db:/var/lib/mysql
+
+    networks:
+      - traefik-network
+
+  rhymix:
+    image: navystack/rhymix:latest
+    restart: unless-stopped
+    depends_on:
+      - rhymix-db
+
+    logging:
+      options:
+        max-size: "10m"
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+
+      - "traefik.http.services.rhymix-srv.loadbalancer.server.port=80"
+      - "traefik.http.services.rhymix-srv.loadbalancer.passhostheader=true"
+
+      - "traefik.http.middlewares.www-redir.redirectregex.regex=^https://www.(.*)"
+      - "traefik.http.middlewares.www-redir.redirectregex.replacement=https://$${1}"
+      - "traefik.http.middlewares.www-redir.redirectregex.permanent=true"
+
+      - "traefik.http.middlewares.compresstraefik.compress=true"
+
+      - "traefik.http.routers.rhymix-rt.rule=Host(`example.com`) || Host(`www.example.com`)" ## 수정
+      - "traefik.http.routers.rhymix-rt.entrypoints=websecure"
+      - "traefik.http.routers.rhymix-rt.service=rhymix-srv"
+      - "traefik.http.routers.rhymix-rt.middlewares=www-redir, compresstraefik"
+
+      - "traefik.http.routers.rhymix-rt.tls=true"
+      - "traefik.http.routers.rhymix-rt.tls.certresolver=letsencrypt" ## 수정
+      - "traefik.http.routers.rhymix-rt.tls.domains[0].main=example.com" ## 수정
+      - "traefik.http.routers.rhymix-rt.tls.domains[0].sans=*.example.com" ## 수정
+
+    volumes:
+      - rhymix-data:/var/www/html
+
+    networks:
+      - traefik-network
+
+  traefik:
+    image: traefik:v2.10
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: "10m"
+    command:
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--api.dashboard=true"
+      - "--ping=true"
+      - "--ping.entrypoint=ping"
+
+      - "--entryPoints.ping.address=:8082"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+
+      - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+
+      - "--providers.docker=true"
+      - "--providers.docker.watch=true"
+      - "--providers.docker.network=traefik-network"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedByDefault=false"
+
+      # Let's Encrypt ACME 설정
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true" # DNS Challenge 사용시 주석처리 하고 밑에 Let's Encrypt ACME DNS Challenge (CLoudflare) 주석 해제 && # environment: # CF_DNS_API_TOKEN: 주석 해제
+
+      - "--certificatesresolvers.letsencrypt.acme.keyType=EC256"
+      - "--certificatesresolvers.letsencrypt.acme.email=webmaster@example.com" # 여기 이메일을 본인의 이메일로 수정
+      - "--certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json"
+
+      # Let's Encrypt ACME DNS Challenge (CLoudflare)
+      #- "--certificatesResolvers.letsencrypt.acme.dnsChallenge=true"
+      #- "--certificatesResolvers.letsencrypt.acme.dnsChallenge.provider=cloudflare"
+      #- "--certificatesResolvers.letsencrypt.acme.dnsChallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+      #- "--certificatesresolvers.letsencrypt.acme.dnschallenge.delaybeforecheck=0"
+
+      # Prometheus 메트릭 설정
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
+      - "--metrics.prometheus.addServicesLabels=true"
+      - "--metrics.prometheus.addrouterslabels=true"
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+
+      # 버전 확인 및 익명 사용 통계 설정
+      - "--global.checkNewVersion=true"
+      - "--global.sendAnonymousUsage=false"
+
+      # HTTP3 설정
+      - "--experimental.http3=true"
+      - "--entrypoints.websecure.http3"
+      - "--entrypoints.websecure.http3.advertisedport=443"
+
+    # environment:
+    # CF_DNS_API_TOKEN: # DNS Challenge 사용시 주석!해!제!
+
+    healthcheck:
+      test: ["CMD", "wget", "http://localhost:8082/ping", "--spider"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+      - "traefik.http.services.dashboard.loadbalancer.passhostheader=true"
+
+      - "traefik.http.routers.dashboard.rule=Host(`web.example.com`)" ## 수정
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik-certificates:/etc/traefik/acme
+
+    networks:
+      - traefik-network
+
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443
+        mode: host
+        protocol: tcp
+      - target: 443
+        published: 443
+        mode: host
+        protocol: udp
+
+volumes:
+  rhymix-data:
+  rhymix-db:
+
+networks:
+  traefik-network:
+    external: true
