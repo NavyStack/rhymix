@@ -1,0 +1,72 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Dockerfile
+        uses: actions/checkout@v4
+
+      - name: Set version based on tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Checkout rhymix Server
+        uses: actions/checkout@v4
+        with:
+          repository: rhymix/rhymix
+          ref: ${{ env.RELEASE_VERSION }}
+          path: rhymix
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: navystack/rhymix
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+          flavor: |
+            latest=true
+
+      #- name: Set up QEMU
+      #  uses: docker/setup-qemu-action@v3
+
+      #- name: Set up Docker Buildx
+      #  uses: docker/setup-buildx-action@v3
+
+      - name: Set up SSH
+        uses: MrSquaare/ssh-setup-action@v3
+        with:
+          host: ${{ secrets.SSH_ARM64_RUNNER }}
+          private-key: ${{ secrets.SSH_PRIVATE_KEY_ARM64_RUNNER }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          endpoint: ${{ secrets.AMD64_RUNNER_ENDPOINT }}
+          append: |
+            - endpoint: ${{ secrets.ARM64_RUNNER_ENDPOINT }}
+              platforms: linux/arm64
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}

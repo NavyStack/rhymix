@@ -1,0 +1,32 @@
+name: Check for updates
+
+on:
+  schedule:
+    - cron:  '*/5 * * * *'
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GH_PAT }}
+    - run: |
+        LOCAL_VER=$(git -c 'versionsort.suffix=-' \
+            ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/NavyStack/rhymix.git \
+            | tail --lines=1 \
+            | cut --delimiter='/' --fields=3)
+        RELEASE_VER=$(git -c 'versionsort.suffix=-' \
+            ls-remote --exit-code --refs --sort='version:refname' --tags https://github.com/rhymix/rhymix.git '*.*.*' \
+            | tail --lines=1 \
+            | cut --delimiter='/' --fields=3)
+        if [[ $RELEASE_VER != $LOCAL_VER ]]; then
+            echo "Local version: $LOCAL_VER"
+            echo "Latest upstream version: $RELEASE_VER"
+            echo "Updating to latest version..."
+            git tag ${RELEASE_VER}
+            git push origin ${RELEASE_VER}
+        else
+            echo "No updates available..."
+        fi

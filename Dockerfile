@@ -41,7 +41,7 @@ RUN curl -sSLf -o /usr/local/bin/install-php-extensions \
 
 # Nginx Dockerfile source
 # https://github.com/nginxinc/docker-nginx/blob/4bf0763f4977fff7e9648add59e0540088f3ca9f/mainline/debian/Dockerfile
-
+LABEL maintainer="NavyStack <webmaster@navystack.com>"
 RUN set -x \
 # create nginx user/group first, to be consistent throughout docker variants
     && groupadd --system --gid 101 nginx \
@@ -145,20 +145,20 @@ RUN set -x \
 		echo '#!/bin/bash'; \
 		echo 'nginx -g "daemon off;" &'; \
 		echo 'php-fpm'; \
-	} > /ns/nginx-php-fpm.sh; \
-    chmod +x /ns/nginx-php-fpm.sh
+	} > /usr/local/bin/nginx-php-fpm.sh; \
+    chmod +x /usr/local/bin/nginx-php-fpm.sh
     
 COPY --from=nginx-moduler-rhymix-downloader /usr/lib/nginx/modules/*.so /usr/lib/nginx/modules/
 COPY --from=nginx-moduler-rhymix-downloader --chown=www-data:www-data /usr/src/rhymix /var/www/html
 COPY ./nginx-conf/default.conf /etc/nginx/conf.d/default.conf
 
-COPY scripts/docker-entrypoint.sh /
-COPY ["scripts/10-listen-on-ipv6-by-default.sh", "scripts/20-envsubst-on-templates.sh", "scripts/30-tune-worker-processes.sh", "/docker-entrypoint.d"]
+COPY scripts/docker-entrypoint.sh /usr/local/bin/
+COPY ["scripts/10-listen-on-ipv6-by-default.sh", "scripts/20-envsubst-on-templates.sh", "scripts/30-tune-worker-processes.sh", "/docker-entrypoint.d/"]
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
-
+ENTRYPOINT ["docker-entrypoint.sh"]
+VOLUME /var/www/html
 EXPOSE 80
 
 STOPSIGNAL SIGQUIT
 
-CMD ["/ns/nginx-php-fpm.sh"]
+CMD ["nginx-php-fpm.sh"]

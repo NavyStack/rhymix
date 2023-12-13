@@ -1,5 +1,6 @@
 # Rhymix with NGINX and Treafik <br> (라이믹스 엔진엑스 도커, Treafik)
-
+[![Check for updates](https://github.com/NavyStack/rhymix/actions/workflows/check-update.yml/badge.svg)](https://github.com/NavyStack/rhymix/actions/workflows/check-update.yml)
+<br>
 [![Docker Image CI](https://github.com/Navystack/rhymix/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Navystack/rhymix/actions/workflows/docker-image.yml)
 
 [Traefik 리버스 프록시 설명](https://navystack.com/2023/11/라이믹스-예제로-배우는-traefik-리버스-프록시-정리/) <br><br>
