@@ -4,6 +4,8 @@ ARG PHP_VERSION=8.2-fpm-bookworm
 FROM navystack/ngx_mod:${NGINX_VERSION} as nginx-moduler-rhymix-downloader
 RUN apt-get update && apt-get install git wget -y
 RUN git clone --depth=1 https://github.com/rhymix/rhymix.git /usr/src/rhymix
+WORKDIR /usr/src/rhymix
+RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bash -c 'echo "Deleting {}"; rm -rf {}' \;
 RUN mkdir -p /usr/src/rhymix/files
 RUN chown -R www-data:www-data /usr/src/rhymix
 RUN chmod -R 1777 /usr/src/rhymix/files
