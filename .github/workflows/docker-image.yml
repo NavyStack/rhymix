@@ -69,4 +69,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
+          outputs: type=image,compression=zstd,compression-level=22,force-compression=true,push=true
