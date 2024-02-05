@@ -5,9 +5,9 @@ set -e
 ME=$(basename "$0")
 
 entrypoint_log() {
-    if [ -z "${NGINX_ENTRYPOINT_QUIET_LOGS:-}" ]; then
-        echo "$@"
-    fi
+  if [ -z "${NGINX_ENTRYPOINT_QUIET_LOGS:-}" ]; then
+    echo "$@"
+  fi
 }
 
 add_stream_block() {
@@ -17,7 +17,10 @@ add_stream_block() {
     entrypoint_log "$ME: $conffile contains a stream block; include $stream_output_dir/*.conf to enable stream templates"
   else
     # check if the file can be modified, e.g. not on a r/o filesystem
-    touch "$conffile" 2>/dev/null || { entrypoint_log "$ME: info: can not modify $conffile (read-only file system?)"; exit 0; }
+    touch "$conffile" 2> /dev/null || {
+      entrypoint_log "$ME: info: can not modify $conffile (read-only file system?)"
+      exit 0
+    }
     entrypoint_log "$ME: Appending stream block to $conffile to include $stream_output_dir/*.conf"
     cat << END >> "$conffile"
 # added by "$ME" on "$(date)"
@@ -37,7 +40,7 @@ auto_envsubst() {
   local filter="${NGINX_ENVSUBST_FILTER:-}"
 
   local template defined_envs relative_path output_path subdir
-  defined_envs=$(printf '${%s} ' $(awk "END { for (name in ENVIRON) { print ( name ~ /${filter}/ ) ? name : \"\" } }" < /dev/null ))
+  defined_envs=$(printf '${%s} ' $(awk "END { for (name in ENVIRON) { print ( name ~ /${filter}/ ) ? name : \"\" } }" < /dev/null))
   [ -d "$template_dir" ] || return 0
   if [ ! -w "$output_dir" ]; then
     entrypoint_log "$ME: ERROR: $template_dir exists, but $output_dir is not writable"

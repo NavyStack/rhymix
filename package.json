@@ -1,0 +1,16 @@
+{
+  "name": "rhymix",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "t1": "prettier --write ."
+  },
+  "keywords": [],
+  "author": "NavyStack <137406386+Navystack@users.noreply.github.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "prettier-plugin-sh": "^0.14.0"
+  }
+}
