@@ -4,7 +4,7 @@
 <br>
 [![Docker Image CI](https://github.com/Navystack/rhymix/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Navystack/rhymix/actions/workflows/docker-image.yml)
 
-[Traefik 리버스 프록시 설명](https://navystack.com/2023/11/라이믹스-예제로-배우는-traefik-리버스-프록시-정리/) <br><br>
+[Traefik 리버스 프록시 설명](https://navystack.com/traefik/traefik-v2-docker/) <br><br>
 [Docker Hub 바로가기](https://hub.docker.com/r/navystack/rhymix) <br><br>
 [관련 Github 바로가기](https://github.com/NavyStack/rhymix) <br><br>
 [NavyStack 블로그](https://navystack.com/) <br><br>
