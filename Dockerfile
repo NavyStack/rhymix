@@ -1,4 +1,4 @@
-ARG NGINX_VERSION=1.25.3
+ARG NGINX_VERSION=1.25.4
 ARG PHP_VERSION=8.2-fpm-bookworm
 
 FROM navystack/ngx_mod:${NGINX_VERSION} as nginx-moduler-rhymix-downloader
@@ -11,8 +11,8 @@ RUN chown -R www-data:www-data /usr/src/rhymix
 RUN chmod -R 1777 /usr/src/rhymix/files
 
 FROM php:${PHP_VERSION} as final
-ENV NGINX_VERSION   1.25.3
-ENV NJS_VERSION     0.8.2
+ENV NGINX_VERSION   1.25.4
+ENV NJS_VERSION     0.8.3
 ENV PKG_RELEASE     1~bookworm
 
 RUN curl -sSLf -o /usr/local/bin/install-php-extensions \
