@@ -33,7 +33,7 @@ NavyStack의 가이드 뿐만 아니라, 아니라 모든 종류의 질문을 �
 기본적으로 Debian 기반의 Nginx 공식 [Dockerfile](https://github.com/nginxinc/docker-nginx/blob/4bf0763f4977fff7e9648add59e0540088f3ca9f/mainline/debian/Dockerfile)을 참고해서 이미지를 만듭니다. <br>
 필요하다고 생각하는 모듈은 멀티스테이지를 통해서 가져오기 때문에 이미지의 크기가 비교적 작습니다.
 
-`ngx_pagespeed`, `ngx_http_brotli`, `ngx_cache_purge` 모듈이 [포함](https://github.com/NavyStack/rhymix/blob/bf1c17cfa1eefd5ae6e0f578ebe909f39f6bca0f/Dockerfile#L139) 되어 있습니다. <br>
+`ngx_http_brotli`, `ngx_cache_purge` 모듈이 [포함](https://github.com/NavyStack/rhymix/blob/bf1c17cfa1eefd5ae6e0f578ebe909f39f6bca0f/Dockerfile#L139) 되어 있습니다. <br>
 아래는 컨테이너에서 `nginx -V 2>&1 | xargs -n1 | grep module$` 의 화면입니다.
 
 ```consol
