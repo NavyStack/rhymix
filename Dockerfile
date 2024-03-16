@@ -142,7 +142,6 @@ RUN set -x \
     echo "load_module modules/ngx_http_cache_purge_module.so;\n$(cat /etc/nginx/nginx.conf)" > /etc/nginx/nginx.conf && \
     echo "load_module modules/ngx_http_brotli_static_module.so;\n$(cat /etc/nginx/nginx.conf)" > /etc/nginx/nginx.conf && \
     echo "load_module modules/ngx_http_brotli_filter_module.so;\n$(cat /etc/nginx/nginx.conf)" > /etc/nginx/nginx.conf && \
-    echo "load_module modules/ngx_pagespeed.so;\n$(cat /etc/nginx/nginx.conf)" > /etc/nginx/nginx.conf && \
     { \
 		echo '#!/bin/bash'; \
 		echo 'nginx -g "daemon off;" &'; \
