@@ -1,4 +1,4 @@
-ARG NGINX_VERSION=1.25.4
+ARG NGINX_VERSION=1.26.0
 ARG PHP_VERSION=8.2-fpm-bookworm
 
 FROM navystack/ngx_mod:${NGINX_VERSION} as nginx-moduler-rhymix-downloader

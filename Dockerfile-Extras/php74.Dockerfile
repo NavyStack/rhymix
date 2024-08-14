@@ -1,4 +1,4 @@
-ARG NGINX_VERSION=1.24.0
+ARG NGINX_VERSION=1.26.0
 ARG PHP_VERSION=7.4-fpm-bullseye
 
 FROM navystack/ngx_mod:${NGINX_VERSION} as nginx-moduler-rhymix-downloader
