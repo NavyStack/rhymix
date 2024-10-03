@@ -60,7 +60,7 @@ services:
       - traefik-network
 
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.2
     restart: unless-stopped
     logging:
       options:
