@@ -1,4 +1,4 @@
-FROM amazonlinux:2023.2.20231113.0 AS nginx-moduler
+FROM amazonlinux:2023.6.20241010.0 AS nginx-moduler
 ARG NGINX_VERSION=1.25.3
 ARG PHP_VERSION=PHP8.29
 ARG TARGETARCH
@@ -83,7 +83,7 @@ RUN wget --no-check-certificate https://dl.cacerts.digicert.com/DigiCertGlobalRo
 RUN chmod 600 /usr/src/rhymix/DigiCertGlobalRootCA.crt.pem
 COPY Dockerfile-Extras/Exteranl-DB/DB.php /usr/src/rhymix/common/framework/DB.php
 
-FROM amazonlinux:2023.2.20231113.0 AS final
+FROM amazonlinux:2023.6.20241010.0 AS final
 
 ARG NGINX_VERSION=1.25.3
 ARG PHP_VERSION=PHP8.29
